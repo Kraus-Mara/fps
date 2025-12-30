@@ -5,7 +5,6 @@ import threading
 import sys
 TIMEOUT = 5
 
-
 def inspect_iframe_content(movie_id):
     urls = []
     url_found = threading.Event()
@@ -33,11 +32,9 @@ def inspect_iframe_content(movie_id):
         html_path = os.path.abspath("temp.html")
         page.goto(f"file://{html_path}")
 
-        while not url_found.is_set():
+        while timeout < TIMEOUT:
             page.wait_for_timeout(100)  # Wait 100ms
             timeout += 0.1 # Adds 100ms to the chrono
-            if timeout >= TIMEOUT: # over TIMEOUT seconds : should break cause no url found
-                break
 
         browser.close()
         p.stop()
@@ -56,5 +53,5 @@ if __name__ == "__main__":
         print("nn")
         sys.exit(1)
     movie_id = sys.argv[1]
-    urls = all_urls(movie_id) # 533535 ou 10466
-    # url = first_url(movie_id)
+    # urls = all_urls(movie_id) # 533535 ou 10466
+    url = first_url(movie_id)
