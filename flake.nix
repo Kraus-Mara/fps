@@ -1,5 +1,5 @@
 {
-  description = "Extracteur de vidéos";
+  description = "Streaming";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -36,9 +36,9 @@
           ];
 
           shellHook = ''
-            echo "Type this command to install the necessary Playwright browsers. in nixOS "
+            echo "Type this command to install the necessary Playwright browsers."
             echo "playwright install chromium"
-            echo "for nixOS users, get out of the Environnement and run the following command:"
+            echo "For nixOS users, get out of the Environnement and run the following command:"
             echo "nix develop --command bash -c 'PLAYWRIGHT_BROWSERS_PATH=$PWD/.browsers playwright install chromium'"
             # Installer les browsers playwright si nécessaire
             export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
