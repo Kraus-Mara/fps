@@ -3,6 +3,7 @@ import os
 import time
 import threading
 import sys
+import tempfile
 
 TIMEOUT = 5
 
@@ -11,37 +12,39 @@ def inspect_iframe_content(movie_id):
     urls = []
     url_found = threading.Event()
     timeout = 0
-    with open("temp.html", "w") as temp:
-        temp.write("<iframe\n")
-        temp.write(
-            f'    src="https://www.rivestream.app/embed?type=movie&id={movie_id}" allowfullscreen>\n'
-        )
-        temp.write("</iframe>\n")
-    temp.close()
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context()
-        page = context.new_page()
 
-        def handle_response(response):
-            url = response.url
-            if "https://www.rivestream.app/api/" in url:
-                if "service=" in url:
-                    urls.append(url)
+    with tempfile.TemporaryDirectory(prefix="fps_") as tmpdir:
+        html_path = os.path.join(tmpdir, "temp.html")
+        with open(html_path, "w") as temp:
+            temp.write("<iframe\n")
+            temp.write(
+                f'    src="https://www.rivestream.app/embed?type=movie&id={movie_id}" allowfullscreen>\n'
+            )
+            temp.write("</iframe>\n")
 
-        page.on("response", handle_response)
-        html_path = os.path.abspath("temp.html")
-        page.goto(f"file://{html_path}")
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            context = browser.new_context()
+            page = context.new_page()
 
-        while not url_found.is_set():
-            page.wait_for_timeout(100)  # Wait 100ms
-            timeout += 0.1  # Adds 100ms to the chrono
-            if (
-                timeout >= TIMEOUT
-            ):  # over TIMEOUT seconds : should break cause no url found
-                break
+            def handle_response(response):
+                url = response.url
+                if "https://www.rivestream.app/api/" in url:
+                    if "service=" in url:
+                        urls.append(url)
 
-        browser.close()
+            page.on("response", handle_response)
+            page.goto(f"file://{html_path}")
+
+            while not url_found.is_set():
+                page.wait_for_timeout(100)  # Wait 100ms
+                timeout += 0.1  # Adds 100ms to the chrono
+                if (
+                    timeout >= TIMEOUT
+                ):  # over TIMEOUT seconds : should break cause no url found
+                    break
+
+            browser.close()
     return urls if urls else exit("No URL found within the timeout period.")
 
 
