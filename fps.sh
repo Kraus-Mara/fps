@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # =========== fonctions ==========
 
@@ -30,7 +30,7 @@ search_movie() {
 }
 
 scrap() {
-  response="$(printf '%s' "$(python id_to_urls.py "$movieID")")"
+  response="$(printf '%s' "$(python "$id_to_urls" "$movieID")")"
   declare -A seen
   for line in $response; do
     service=$(echo "$line" | grep -oP "&service=\K[^&]+")
@@ -122,8 +122,12 @@ play() {
 
 # =========== variables ==========
 
-caption_file="subtitles.srt"
+tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/fps.XXXXXX") || exit 1
+trap 'rm -rf "$tmpdir"' EXIT INT TERM
+
+caption_file="$tmpdir/subtitles.srt"
 rivestream_refr="https://www.rivestream.app/"
+id_to_urls="${FPS_ID_TO_URLS:-$(dirname "$0")/id_to_urls.py}"
 
 # =========== main ==========
 
