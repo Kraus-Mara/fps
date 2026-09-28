@@ -3,6 +3,7 @@ import os
 import time
 import threading
 import sys
+
 TIMEOUT = 5
 
 
@@ -27,7 +28,6 @@ def inspect_iframe_content(movie_id):
             if "https://www.rivestream.app/api/" in url:
                 if "service=" in url:
                     urls.append(url)
-                    url_found.set()
 
         page.on("response", handle_response)
         html_path = os.path.abspath("temp.html")
@@ -35,26 +35,26 @@ def inspect_iframe_content(movie_id):
 
         while not url_found.is_set():
             page.wait_for_timeout(100)  # Wait 100ms
-            timeout += 0.1 # Adds 100ms to the chrono
-            if timeout >= TIMEOUT: # over TIMEOUT seconds : should break cause no url found
+            timeout += 0.1  # Adds 100ms to the chrono
+            if (
+                timeout >= TIMEOUT
+            ):  # over TIMEOUT seconds : should break cause no url found
                 break
 
         browser.close()
-        p.stop()
     return urls if urls else exit("No URL found within the timeout period.")
 
-def all_urls(movie_id):
-    urls = inspect_iframe_content(movie_id)
-    [print(urls) for url in urls]
 
 def first_url(movie_id):
     urls = inspect_iframe_content(movie_id)
-    print(urls[0])
+    return urls
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("nn")
         sys.exit(1)
     movie_id = sys.argv[1]
-    urls = all_urls(movie_id) # 533535 ou 10466
-    # url = first_url(movie_id)
+    url = first_url(movie_id)
+    for u in url:
+        print(u)
