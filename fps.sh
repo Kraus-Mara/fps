@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# TODO
+# https://www.opensubtitles.org/fr/search/sublanguageid-all/idmovie-29836
+# Use this kind of links to get subtitles, maybe do
+# prog1 &
+# prog2 &
+# to run in parallel the video query and subtitles query
+# I mean u ask for kung fu panda, and while its scraping for the video, it already scraps opensubtitles during this time
+
 # =========== fonctions ==========
 
 search_movie() {
@@ -49,13 +57,13 @@ draw_bar() {
     printf '\r\033[K[%s] %3d%% (0/0)' "$(printf '░%.0s' $(seq 1 $width))" 100 >&2
     return
   fi
-  local pct=$(( cur * 100 / total ))
-  local filled=$(( cur * width / total ))
-  local empty=$(( width - filled ))
+  local pct=$((cur * 100 / total))
+  local filled=$((cur * width / total))
+  local empty=$((width - filled))
   local bar=""
   local i
-  for ((i=0; i<filled; i++)); do bar="${bar}█"; done
-  for ((i=0; i<empty;  i++)); do bar="${bar}░"; done
+  for ((i = 0; i < filled; i++)); do bar="${bar}█"; done
+  for ((i = 0; i < empty; i++)); do bar="${bar}░"; done
   printf '\r\033[K[%s] %3d%% (%d/%d)' "$bar" "$pct" "$cur" "$total" >&2
 }
 
